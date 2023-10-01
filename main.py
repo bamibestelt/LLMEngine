@@ -1,4 +1,5 @@
 import argparse
+import threading
 
 from rabbit import start_listen_prompt, start_listen_data_update_request
 
@@ -21,9 +22,13 @@ def listen_to_ingestion_request():
     else:
         print("start listening to requests")
         # listen to data-update request
-        start_listen_data_update_request()
+        data_update_thread = threading.Thread(target=start_listen_data_update_request)
         # listen to prompt
-        start_listen_prompt()
+        prompt_thread = threading.Thread(target=start_listen_prompt)
+        data_update_thread.start()
+        prompt_thread.start()
+        data_update_thread.join()
+        prompt_thread.join()
 
 
 def parse_arguments():
