@@ -5,7 +5,7 @@ import pika
 from dotenv import load_dotenv
 from langchain.document_loaders import AsyncHtmlLoader
 
-from persistence import persist_coda_data
+from persistence import persist_blog_data, parse_blog_document
 from privateGPT import PrivateGPT
 
 load_dotenv()
@@ -79,9 +79,8 @@ def blog_links_receiver(channel, method, properties, body):
     bytes_to_string = body.decode('utf-8')
     links = json.loads(bytes_to_string)
     print(f"Links data received: {len(links)}")
-    loader = AsyncHtmlLoader(links)
-    docs = loader.load()
-    persist_coda_data(docs)
+    docs = parse_blog_document(links)
+    persist_blog_data(docs)
     channel.stop_consuming()
 
     send_message('finish', LLM_STATUS_QUEUE)

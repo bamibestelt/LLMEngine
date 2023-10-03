@@ -8,13 +8,12 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.llms import GPT4All, LlamaCpp
 from langchain.vectorstores import Chroma
 
-from constants import CHROMA_SETTINGS
+from constants import CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME
 
 if not load_dotenv():
     print("Could not load .env file or it is empty. Please check if it exists and is readable.")
     exit(1)
 
-embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME")
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
 
 model_type = os.environ.get('MODEL_TYPE')
@@ -45,16 +44,13 @@ class PrivateGPT:
 
         print('RetrievalQA is null. LLM initialization started...')
 
-        embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDINGS_MODEL_NAME)
         print('embeddings initialized...')
 
         chroma_client = chromadb.PersistentClient(settings=CHROMA_SETTINGS, path=persist_directory)
-        print('chromadb client initialized...')
-
-        db = Chroma(persist_directory=persist_directory,
-                    embedding_function=embeddings,
-                    client_settings=CHROMA_SETTINGS,
+        db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS,
                     client=chroma_client)
+        print('chromadb client initialized...')
         retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
         print('vector store retriever obtained...')
 
@@ -92,7 +88,7 @@ class PrivateGPT:
             # need to restart init_llm_qa and post init process to client
             self.init_llm_qa()
 
-        print('Query prompt...')
+        print(f"Query prompt: {prompt}")
         # Get the answer from the chain
         start = time.time()
         res = self._retrievalQA(prompt)

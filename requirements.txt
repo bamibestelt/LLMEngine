@@ -11,8 +11,8 @@ certifi==2023.7.22
 cffi==1.15.1
 chardet==5.2.0
 charset-normalizer==3.2.0
-chroma-hnswlib==0.7.2
-chromadb==0.4.7
+chroma-hnswlib==0.7.3
+chromadb==0.4.12
 click==8.1.7
 colorclass==2.2.2
 coloredlogs==15.0.1
@@ -115,3 +115,4 @@ uvloop==0.17.0
 watchfiles==0.20.0
 websockets==11.0.3
 yarl==1.9.2
+sentence_transformers==2.2.2

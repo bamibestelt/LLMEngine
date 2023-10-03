@@ -1,7 +1,8 @@
 import argparse
 import threading
 
-from rabbit import start_listen_prompt, start_listen_data_update_request
+from privateGPT import PrivateGPT
+from rabbit import start_listen_prompt, start_listen_data_update_request, start_blog_links_request
 
 test_rss = "https://deviesdevelopment.github.io/blog/posts/index.xml"
 
@@ -16,8 +17,9 @@ def listen_to_ingestion_request():
                 break
             if query.strip() == "":
                 continue
-            # start_listen_data_update_request()
-            # start_listen_prompt()
+            # start_blog_links_request()
+            PrivateGPT().init_llm_qa()
+            PrivateGPT().qa_prompt("what is a software")
         return
     else:
         print("start listening to requests")
