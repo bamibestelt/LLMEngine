@@ -4,20 +4,14 @@ from typing import List
 
 import chromadb
 from chromadb.api.segment import API
-from dotenv import load_dotenv
 from langchain.docstore.document import Document
 from langchain.document_loaders import AsyncHtmlLoader
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 
-from constants import PERSIST_DIRECTORY, CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME
+from constants import PERSIST_DIRECTORY, CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP
 from privateGPT import PrivateGPT
-
-load_dotenv()
-
-chunk_size = 500
-chunk_overlap = 50
 
 
 def parse_blog_document(links: List[str]) -> List[Document]:
@@ -50,9 +44,9 @@ def process_documents(documents: List[Document], ignored_files: List[str] = []) 
     if not documents:
         print("No new documents to load")
         exit(0)
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     documents = text_splitter.split_documents(documents)
-    print(f"Split into {len(documents)} chunks of text (max. {chunk_size} tokens each)")
+    print(f"Split into {len(documents)} chunks of text (max. {CHUNK_SIZE} tokens each)")
     return documents
 
 

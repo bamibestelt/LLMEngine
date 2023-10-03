@@ -1,27 +1,11 @@
 import json
-import os
 
 import pika
-from dotenv import load_dotenv
-from langchain.document_loaders import AsyncHtmlLoader
 
+from constants import RABBIT_HOST, LLM_UPDATE_QUEUE, LLM_STATUS_QUEUE, BLOG_RSS, BLOG_LINKS_REQUEST, BLOG_LINKS_REPLY, \
+    PROMPT_QUEUE, LLM_REPLY_QUEUE
 from persistence import persist_blog_data, parse_blog_document
 from privateGPT import PrivateGPT
-
-load_dotenv()
-
-RABBIT_HOST = os.environ.get('RABBIT_HOST')
-
-# rss blog links channel
-BLOG_LINKS_REQUEST = os.environ.get('BLOG_REQUEST_QUEUE')
-BLOG_LINKS_REPLY = os.environ.get('BLOG_REPLY_QUEUE')
-BLOG_RSS = os.environ.get('BLOG_RSS')
-
-# prompt communication channels
-PROMPT_QUEUE = os.environ.get('PROMPT_QUEUE')
-LLM_REPLY_QUEUE = os.environ.get('LLM_REPLY_QUEUE')
-LLM_UPDATE_QUEUE = os.environ.get('LLM_UPDATE_QUEUE')
-LLM_STATUS_QUEUE = os.environ.get('LLM_STATUS_QUEUE')
 
 
 def send_message(message: str, queue: str):
