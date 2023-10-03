@@ -83,7 +83,6 @@ def start_listen_prompt():
 def prompt_receiver(channel, method, properties, body):
     prompt = body.decode('utf-8')
     print(f"Prompt received: {prompt}")
-    answer_model = PrivateGPT().qa_prompt(prompt)
-    json_model = json.dumps(answer_model, default=lambda o: o.__dict__, indent=4)
-    send_message(json_model, LLM_REPLY_QUEUE)
+    reply = PrivateGPT().qa_prompt(prompt)
+    send_message(reply, LLM_REPLY_QUEUE)
     print('LLM reply sent')

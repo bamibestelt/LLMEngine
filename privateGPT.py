@@ -10,12 +10,6 @@ from constants import CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME, PERSIST_DIRECTORY,
     MODEL_N_BATCH, MODEL_N_CTX, MODEL_PATH
 
 
-class LLMAnswerModel:
-    def __init__(self, seconds, a):
-        self.time = seconds
-        self.answer = a
-
-
 class PrivateGPT:
     _instance = None
     _retrievalQA = None
@@ -69,7 +63,7 @@ class PrivateGPT:
                                                         return_source_documents=False)
         print('LLM ready!')
 
-    def qa_prompt(self, prompt: str) -> LLMAnswerModel:
+    def qa_prompt(self, prompt: str) -> str:
         # Check for RetrievalQA state
         if self._retrievalQA is None:
             # need to restart init_llm_qa and post init process to client
@@ -84,4 +78,5 @@ class PrivateGPT:
 
         time_seconds = round(end - start, 2)
         print(f"LLM reply: {answer}")
-        return LLMAnswerModel(time_seconds, answer)
+        reply = f"{answer}\n\ntime:{time_seconds}"
+        return reply
