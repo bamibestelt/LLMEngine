@@ -9,6 +9,10 @@ if not load_dotenv():
 
 RABBIT_HOST = os.environ.get('RABBIT_HOST')
 
+# coda links channel
+CODA_LINKS_REQUEST = os.environ.get('CODA_REQUEST_QUEUE')
+CODA_LINKS_REPLY = os.environ.get('CODA_REPLY_QUEUE')
+
 # rss blog links channel
 BLOG_LINKS_REQUEST = os.environ.get('BLOG_REQUEST_QUEUE')
 BLOG_LINKS_REPLY = os.environ.get('BLOG_REPLY_QUEUE')

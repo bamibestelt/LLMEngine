@@ -5,13 +5,19 @@ from typing import List
 import chromadb
 from chromadb.api.segment import API
 from langchain.docstore.document import Document
-from langchain.document_loaders import AsyncHtmlLoader
+from langchain.document_loaders import AsyncHtmlLoader, AsyncChromiumLoader
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 
 from constants import PERSIST_DIRECTORY, CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP
-from privateGPT import PrivateGPT
+
+
+def parse_coda_pages(links: List[str]) -> List[Document]:
+    loader = AsyncChromiumLoader(links)
+    docs = loader.load()
+    print("decoding coda pages success")
+    return docs
 
 
 def parse_blog_document(links: List[str]) -> List[Document]:
@@ -60,7 +66,7 @@ def batch_chromadb_insertions(chroma_client: API, documents: List[Document]) -> 
         yield documents[i:i + max_batch_size]
 
 
-def persist_blog_data(texts: List[Document]):
+def persist_documents(texts: List[Document]):
     # Create embeddings
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDINGS_MODEL_NAME)
     # Chroma client
@@ -92,6 +98,6 @@ def persist_blog_data(texts: List[Document]):
 
     # try to initialize llm
     # if already active, restart
-    PrivateGPT().init_llm_qa()
+    # PrivateGPT().init_llm_qa()
 
     print(f"Ingestion complete! You can now run GPT to query your documents")

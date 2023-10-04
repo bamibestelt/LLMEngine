@@ -2,9 +2,7 @@ import argparse
 import threading
 
 from privateGPT import PrivateGPT
-from rabbit import start_listen_prompt, start_listen_data_update_request, start_blog_links_request
-
-test_rss = "https://deviesdevelopment.github.io/blog/posts/index.xml"
+from rabbit import start_listen_prompt, start_listen_data_update_request
 
 
 def listen_to_ingestion_request():
