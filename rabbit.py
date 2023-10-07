@@ -8,6 +8,8 @@ from constants import RABBIT_HOST, LLM_UPDATE_QUEUE, LLM_STATUS_QUEUE, BLOG_RSS,
 from persistence import persist_documents, parse_blog_document, parse_coda_pages
 from privateGPT import PrivateGPT
 
+is_updating_data = False
+
 
 def publish_message(message: str, queue: str):
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST))
@@ -38,17 +40,21 @@ def start_listen_data_update_request():
 
 
 def data_update_request_receiver(channel, method, properties, body):
+    global is_updating_data
+    if is_updating_data:
+        print("llm engine is still busy persisting data")
+        return
+
+    is_updating_data = True
     request = body.decode('utf-8')
     print(f"data-update request: {request}")
-    channel.stop_consuming()
     publish_message('start', LLM_STATUS_QUEUE)
     blog_links_thread = threading.Thread(target=start_blog_links_request)
-    coda_links_thread = threading.Thread(target=start_coda_links_request)
+    # coda_links_thread = threading.Thread(target=start_coda_links_request)
     blog_links_thread.start()
-    coda_links_thread.start()
+    # coda_links_thread.start()
     blog_links_thread.join()
-    coda_links_thread.join()
-    # todo reply status to api middleware
+    # coda_links_thread.join()
 
 
 # send data update status to client
@@ -70,6 +76,8 @@ def blog_links_receiver(channel, method, properties, body):
     persist_documents(docs)
     channel.stop_consuming()
     publish_message('blog links processed', LLM_STATUS_QUEUE)
+    global is_updating_data
+    is_updating_data = False
 
 
 def start_coda_links_request():

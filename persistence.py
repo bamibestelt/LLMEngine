@@ -43,11 +43,9 @@ def process_documents(documents: List[Document], ignored_files: List[str] = []) 
     """
     Load documents and split in chunks
     """
-    for doc in documents:
-        print(f"source: {doc.metadata['source']}")
-
-    # documents = [file_path for file_path in all_files if file_path not in ignored_files]
-    if not documents:
+    # print(f"source: {doc.metadata['source']}")
+    docs = [doc for doc in documents if doc.metadata['source'] not in ignored_files]
+    if not docs:
         print("No new documents to load")
         exit(0)
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
