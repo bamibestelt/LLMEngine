@@ -6,8 +6,8 @@ WORKDIR /app
 
 # Copy the current directory contents into the container at /app
 COPY . /app
-COPY .env /app/.env
-COPY .venv /venv
+
+WORKDIR /
 
 # Update the system
 RUN apt-get update -y
@@ -25,15 +25,24 @@ RUN make -j$(nproc)
 # Install Python
 RUN make altinstall
 
+# install pip
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# upgrade pip
+RUN pip3 install --upgrade pip
+
 WORKDIR /app
 
-# include some other path into your site-packages
-ADD libs.pth /usr/local/lib/python3.11/site-packages/libs.pth
+# install everything in requirements.txt except gpt4all which has problem
+RUN pip install --no-cache-dir -r requirements.txt
+
+# install gpt4all manually
+RUN pip install gpt4all-1.0.8-py3-none-manylinux1_x86_64.whl
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
-# test
-
 # Run main.py when the container launches
-CMD ["python3.11", "main.py"]
+CMD ["python3", "main.py"]
