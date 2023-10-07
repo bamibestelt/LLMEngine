@@ -44,7 +44,9 @@ def process_documents(documents: List[Document], ignored_files: List[str] = []) 
     Load documents and split in chunks
     """
     # print(f"source: {doc.metadata['source']}")
+    print(f"persistence. total docs: {len(documents)}")
     docs = [doc for doc in documents if doc.metadata['source'] not in ignored_files]
+    print(f"persistence. docs to be saved: {len(docs)}")
     if not docs:
         print("No new documents to load")
         exit(0)

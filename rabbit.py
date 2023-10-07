@@ -72,10 +72,12 @@ def blog_links_receiver(channel, method, properties, body):
     bytes_to_string = body.decode('utf-8')
     links = json.loads(bytes_to_string)
     print(f"Links data received: {len(links)}")
+    publish_message('parse blog documents', LLM_STATUS_QUEUE)
     docs = parse_blog_document(links)
+    publish_message('saving the docs', LLM_STATUS_QUEUE)
     persist_documents(docs)
     channel.stop_consuming()
-    publish_message('blog links processed', LLM_STATUS_QUEUE)
+    publish_message('finish', LLM_STATUS_QUEUE)
     global is_updating_data
     is_updating_data = False
 
