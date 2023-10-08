@@ -11,10 +11,10 @@ COPY . /app
 RUN pip3 install --upgrade pip
 
 # install everything in requirements.txt except gpt4all which has problem
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # install gpt4all manually
-# RUN pip install gpt4all-1.0.8-py3-none-manylinux1_x86_64.whl
+# RUN pip install gpt4all-1.0.8-py3-none-macosx_10_9_universal2.whl
 
 # file paths needed to be specified with volumes
 ENV PERSIST_DIRECTORY=""
