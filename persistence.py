@@ -1,16 +1,13 @@
-import glob
-import os
 from typing import List
 
 import chromadb
 from chromadb.api.segment import API
+from constants import PERSIST_DIRECTORY, CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP
 from langchain.docstore.document import Document
 from langchain.document_loaders import AsyncHtmlLoader, AsyncChromiumLoader
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-
-from constants import PERSIST_DIRECTORY, CHROMA_SETTINGS, EMBEDDINGS_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP
 
 
 def parse_coda_pages(links: List[str]) -> List[Document]:
@@ -27,16 +24,14 @@ def parse_blog_document(links: List[str]) -> List[Document]:
     return docs
 
 
-def does_vectorstore_exist() -> bool:
-    if os.path.exists(os.path.join(PERSIST_DIRECTORY, 'index')):
-        if (os.path.exists(os.path.join(PERSIST_DIRECTORY, 'chroma-collections.parquet')) and
-                os.path.exists(os.path.join(PERSIST_DIRECTORY, 'chroma-embeddings.parquet'))):
-            list_index_files = glob.glob(os.path.join(PERSIST_DIRECTORY, 'index/*.bin'))
-            list_index_files += glob.glob(os.path.join(PERSIST_DIRECTORY, 'index/*.pkl'))
-            # At least 3 documents are needed in a working vectorstore
-            if len(list_index_files) > 3:
-                return True
-    return False
+def does_vectorstore_exist(persist_directory: str, embeddings: HuggingFaceEmbeddings) -> bool:
+    """
+    Checks if vectorstore exists
+    """
+    db = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
+    if not db.get()['documents']:
+        return False
+    return True
 
 
 def process_documents(documents: List[Document], ignored_files: List[str] = []) -> List[Document]:
@@ -45,6 +40,7 @@ def process_documents(documents: List[Document], ignored_files: List[str] = []) 
     """
     # print(f"source: {doc.metadata['source']}")
     print(f"persistence. total docs: {len(documents)}")
+    print(f"persistence. ignored files: {ignored_files}")
     docs = [doc for doc in documents if doc.metadata['source'] not in ignored_files]
     print(f"persistence. docs to be saved: {len(docs)}")
     if not docs:
@@ -72,7 +68,7 @@ def persist_documents(texts: List[Document]):
     # Chroma client
     chroma_client = chromadb.PersistentClient(settings=CHROMA_SETTINGS, path=PERSIST_DIRECTORY)
 
-    if does_vectorstore_exist():
+    if does_vectorstore_exist(PERSIST_DIRECTORY, embeddings):
         # Update and store locally vectorstore
         print(f"Appending to existing vectorstore at {PERSIST_DIRECTORY}")
         db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embeddings,
